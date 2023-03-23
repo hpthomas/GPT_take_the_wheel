@@ -19,7 +19,6 @@ def set_api_key():
 
     openai.api_key = api_key
 
-
 def git_clean_state():
     uncommitted = subprocess.getoutput("git status --porcelain")
     return len(uncommitted.strip()) == 0
@@ -50,7 +49,9 @@ REQUEST_CHANGES_PROMPT = """
 Here are the contents of the requested files:
 {file_contents}
 
-You must propose changes to exactly one file. Your response must be in the following format:
+You must propose changes to exactly one file. Do not include any backtick characters (`) in your response. 
+Include only the file name, and the contents of the file.
+Your response must be in the following format:
 file_name.txt
 < full new contents of the file you want to change >
 """
@@ -69,7 +70,13 @@ class Conversation:
         
     def overwrite_file(self, file_name, changes):
         if file_name not in repo_contents():
-            print(f"{file_name} not found in the repository - will save new file.")
+            file_path = os.path.abspath(file_name)
+            current_dir = os.path.abspath(os.getcwd())
+            if not file_path.startswith(current_dir):
+                print(f"{file_name} is not within working dir - will not write to this location.")
+                return
+
+            print(f"Will save new file {file_name}.")
         else:
             print(f"Will overwrite {file_name}")
 
@@ -115,16 +122,23 @@ class Conversation:
         return result_text
 
     def file_contents(self, f):
-        print(f'GPT API is requesting {f}')
-        if self.auto_confirm_send:
-            contents = open(f).read()
+        file_path = os.path.abspath(f)
+        current_dir = os.path.abspath(os.getcwd())
+
+        if not file_path.startswith(current_dir):
+            print(f"{file_path} is not within the current working directory.")
+            contents = f"GPT API not authorized to access {f}."
         else:
-            allow = input("Allow? Press Enter or type 'y' to continue.\n")
-            if allow.strip().lower() not in ['', 'y']:
-                contents = "User has not authorized {f} to be sent to GPT API"
-                contents += input("Provide a reason:\n")
-            else:
+            print(f'GPT API is requesting {f}')
+            if self.auto_confirm_send:
                 contents = open(f).read()
+            else:
+                allow = input("Allow? Press Enter or type 'y' to continue.\n")
+                if allow.strip().lower() not in ['', 'y']:
+                    contents = "User has not authorized {f} to be sent to GPT API"
+                    contents += input("Provide a reason:\n")
+                else:
+                    contents = open(f).read()
         return f"==BEGIN {f}==\n{contents}\n==END {f}=="
 
     def run(self, user_request):
