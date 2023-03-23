@@ -50,7 +50,7 @@ Here are the contents of the requested files:
 {file_contents}
 
 You must propose changes to exactly one file. 
-Include only the file name, and the contents of the file.
+Include only the file name, and the contents of the file. Do not format your response as code. Respond with text only.
 Your response must be in the following format:
 file_name.txt
 < full new contents of the file you want to change >
@@ -94,6 +94,7 @@ class Conversation:
                 with open(file_name, 'w') as f:
                     f.write(changes)
                 print(f"{file_name} has been overwritten with the proposed changes.")
+                os.system('git diff')
 
     def confirm_or_abort(self):
         print(f"You have used {self.total_tokens} tokens in this session.")
@@ -121,7 +122,11 @@ class Conversation:
 
     def clean(self, text):
         text=text.strip()
-        if text.startswith('```') and text.endswith('```'):
+        lines = text.split('\n')
+        if lines[0].startswith('```') and lines[-1].endswith('```'):
+            lines = lines[1:-1]
+            text = '\n'.join(lines)
+        elif text.startswith('```') and text.endswith('```'):
             text = text[3:-3]
         return text
 
@@ -164,6 +169,7 @@ class Conversation:
         new_file_contents = '\n'.join(response.split('\n')[1:])
         new_file_contents = self.clean(new_file_contents)
         self.overwrite_file(file_name, new_file_contents)
+        print(f"You used {self.total_tokens} tokens in this session.")
 
 def main():
     set_api_key()
