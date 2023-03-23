@@ -25,22 +25,23 @@ pip install .
 ```
 
 ### Run
-GPT-Assist - asks for confirmation before sending data to the API, and before overwriting any files.
+If you want to be prompted for confirmation
 ```
 gpt_assist
 ```
-GPT Take the Wheel - doesn't ask for confirmation, 
+If you want to be prompted before overwriting a file, but not before sending stuff to the API:
+```
+gpt_assist --auto-confirm-send
+```
+If you want to be prompted before sending stuff to the API, but not before overwriting:
+```
+gpt_assist --auto-overwrite
+```
 
-After starting the script, you will be prompted to input your goal or task. Make sure to follow the correct format for the program to understand your request. The tool will then guide you through the process of modifying the necessary files.
-
-### Command line options
-
-You can use the following command line options:
-
-- `--auto-overwrite`: Automatically overwrite files with the changes proposed by GPT-Assist.
-- `--auto-confirm-send`: Automatically confirm sending messages and files to the OpenAI API.
-
-The `gpt_take_the_wheel` script just passes in both of these flags for you.
+To not be prompted at all, pass both `--auto-overwrite` and `auto-confirm-send`, or just run:
+```
+gpt_take_the_wheel
+```
 
 ## License
 
