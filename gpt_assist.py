@@ -82,6 +82,7 @@ class Conversation:
         if self.auto_overwrite:
             with open(file_name, 'w') as f:
                 f.write(changes)
+            # os.system() to show interactive diff
             os.system('git diff')
             print(f"{file_name} has been overwritten with the proposed changes.")
         else:
@@ -169,14 +170,18 @@ def main():
     parser = argparse.ArgumentParser(description="Run GPT Assistant")
     parser.add_argument("--auto-overwrite", "-a", help="Automatically overwrite files with changes", action="store_true")
     parser.add_argument("--auto-confirm-send", "-s", help="Automatically confirm sending ", action="store_true")
+    parser.add_argument("-m", "--model", help="Model to use (default: gpt-4)", default="gpt-4")
     args = parser.parse_args()
-    conversation = Conversation(auto_overwrite=args.auto_overwrite, auto_confirm_send=args.auto_confirm_send, model="gpt-4")
+    conversation = Conversation(auto_overwrite=args.auto_overwrite, auto_confirm_send=args.auto_confirm_send, model=args.model)
     prompt = input("What do you want to do?\n")
     conversation.run(prompt)
 
 def take_the_wheel():
     set_api_key()
-    conversation = Conversation(auto_overwrite=True, auto_confirm_send=True, model="gpt-4")
+    parser = argparse.ArgumentParser(description="Run GPT Assistant")
+    parser.add_argument("-m", "--model", help="Model to use (default: gpt-4)", default="gpt-4")
+    args = parser.parse_args()
+    conversation = Conversation(auto_overwrite=True, auto_confirm_send=True, model=args.model)
     prompt = input("What do you want to do?\n")
     conversation.run(prompt)
 

@@ -5,13 +5,17 @@ This is a CLI script which asks the user what they want, and sends the prompt + 
 
 This can be run via `gpt_assist` or `gpt_take_the_wheel`. With `gpt_assist`, the AI will propose changes and you can review them before applying. In `gpt_take_the_wheel`, the AI will automatically apply changes without waiting for your review, and shows you the `git diff`.
 
-This requires git, and can only work from the root of a git repository. 
 
 # DANGER
 - This will automatically send the content of files in your git repository to the OpenAI API
 - If you run with `--auto-overwrite`, or use the `gpt_take_the_wheel` command, this will **automatically overwrite files in your repo** with whatever ChatGPT suggests
 - The cost can add up quickly if you use it a lot
 - The output will be often wrong, not what you wanted, or nonsense
+
+# Notes / Limitations
+- This only works on Unix-y systems at the moment. This is because it runs `git ls-files | xargs ls -l`, to include file sizes with the first API call. It might work about as well without file sizes, but it might work about as well without that
+- This requires git, and only works from the root of a repo
+- There's no way to continue a conversation at the moment: you write the prompt, send the files, and see the changes proposed
 
 ## Usage
 ### Requirements
