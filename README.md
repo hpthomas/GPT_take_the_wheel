@@ -13,7 +13,7 @@ This can be run via `gpt_assist` or `gpt_take_the_wheel`. With `gpt_assist`, the
 - The output will be often wrong, not what you wanted, or nonsense
 
 # Notes / Limitations
-- This only works on Unix-y systems at the moment. This is because it runs `git ls-files | xargs ls -l`, to include file sizes with the first API call. It might work about as well without file sizes, but it might work about as well without that
+- This only works on Unix-y systems at the moment. This is because it runs `git ls-files | xargs ls -l`, to include file sizes with the first API call. It might work about as well without file sizes - removing the `xargs ls -l` might be enough for this to run on Windows.
 - This requires git, and only works from the root of a repo
 - There's no way to continue a conversation at the moment: you write the prompt, send the files, and see the changes proposed
 
