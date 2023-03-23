@@ -118,8 +118,9 @@ class Conversation:
         self.messages.append(assistant(result_text))
         return result_text
 
-    def remove_backticks(self, text):
-        while text.startswith('```') and text.endswith('```'):
+    def clean(self, text):
+        text=text.strip()
+        if text.startswith('```') and text.endswith('```'):
             text = text[3:-3]
         return text
 
@@ -160,7 +161,7 @@ class Conversation:
 
         file_name = response.split('\n')[0]
         new_file_contents = '\n'.join(response.split('\n')[1:])
-        new_file_contents = self.remove_backticks(new_file_contents)
+        new_file_contents = self.clean(new_file_contents)
         self.overwrite_file(file_name, new_file_contents)
 
 def main():
