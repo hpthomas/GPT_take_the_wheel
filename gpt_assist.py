@@ -49,7 +49,7 @@ REQUEST_CHANGES_PROMPT = """
 Here are the contents of the requested files:
 {file_contents}
 
-You must propose changes to exactly one file. Do not include any backtick characters (`) in your response. 
+You must propose changes to exactly one file. 
 Include only the file name, and the contents of the file.
 Your response must be in the following format:
 file_name.txt
@@ -58,7 +58,6 @@ file_name.txt
 
 def repo_contents():
     return subprocess.getoutput("git ls-files | xargs ls -l")
-
 
 class Conversation:
     def __init__(self, auto_overwrite=False, auto_confirm_send=False, base_message=BASE_MESSAGE, model="gpt-4"):
@@ -87,7 +86,6 @@ class Conversation:
             print(f"{file_name} has been overwritten with the proposed changes.")
         else:
             print(f"Proposed changes for {file_name}:\n{changes}")
-            # don't overwrite on 'enter' without auto_overwrite flag because that seems easy to do accidentally
             should_overwrite = input("Overwrite? Press type 'y' to continue.\n")
             if should_overwrite.strip().lower() not in ['y']:
                 print(f"{file_name} has not been overwritten.")
@@ -106,7 +104,6 @@ class Conversation:
             exit(0)
 
     def chat(self):
-        # openai says that 4 characters is about 1 token
         raw = json.dumps(self.messages).encode('utf-8')
         print(f"Going to send {len(raw)} bytes (about {len(raw) // 4} tokens) to OpenAI API")
         self.confirm_or_abort()
@@ -120,6 +117,11 @@ class Conversation:
         result_text = completion.choices[0].message.content
         self.messages.append(assistant(result_text))
         return result_text
+
+    def remove_backticks(self, text):
+        while text.startswith('```') and text.endswith('```'):
+            text = text[3:-3]
+        return text
 
     def file_contents(self, f):
         file_path = os.path.abspath(f)
@@ -146,22 +148,20 @@ class Conversation:
             print("You cannot start a conversation with --auto-overwrite on and uncommitted changes.")
             return
 
-        # ask what files it wants
         prompt = START_CONVERSATION_PROMPT.format(user_request=user_request, repo_contents=repo_contents())
         self.messages.append(user(prompt))
         files_to_send = self.chat()
 
-        # send the files
         filenames = files_to_send.split()
         file_data = '\n'.join(self.file_contents(filename) for filename in filenames)
         prompt = REQUEST_CHANGES_PROMPT.format(file_contents=file_data)
         self.messages.append(user(prompt))
         response = self.chat()
 
-        # apply the changes
         file_name = response.split('\n')[0]
-        changes = '\n'.join(response.split('\n')[1:])
-        self.overwrite_file(file_name, changes)
+        new_file_contents = '\n'.join(response.split('\n')[1:])
+        new_file_contents = self.remove_backticks(new_file_contents)
+        self.overwrite_file(file_name, new_file_contents)
 
 def main():
     set_api_key()
