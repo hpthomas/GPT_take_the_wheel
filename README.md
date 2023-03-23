@@ -1,3 +1,5 @@
+![Demo - Animated Gif of gpt_take_the_Wheel](demo.gif)
+
 # GPT Take the Wheel
 Inspired by [gpt-repository-loader](https://github.com/mpoon/gpt-repository-loader/blob/main/gpt_repository_loader.py) and a [comment on the HN thread about it](https://news.ycombinator.com/item?id=35191663). 
 
